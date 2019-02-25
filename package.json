@@ -1,0 +1,44 @@
+{
+  "name": "collate-boilerplate",
+  "version": "1.0.0",
+  "description": "Collate boilerplate for all typescript modules",
+  "main": "./bin/index.js",
+  "bin": {
+    "collate-boilerplate": "./bin/index.js"
+  },
+  "scripts": {
+    "start": "npm run lint && tsc -p . && node bin/index.js",
+    "create": "npm run build && npm run test",
+    "build": "npm run lint && tsc -p .",
+    "test": "./node_modules/mocha -r ts-node/register tests/**/*.spec.ts",
+    "lint": "tslint src/**/*.ts && tslint tests/**/*.ts",
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/collatedev/collate-boilderplate.git"
+  },
+  "author": "Evan Coulson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/collatedev/collate-boilderplate/issues"
+  },
+  "homepage": "https://github.com/collatedev/collate-boilderplate#readme",
+  "devDependencies": {
+    "@types/node": "^11.9.5",
+    "nodemon": "^1.18.10",
+    "ts-node": "^8.0.2",
+    "typescript": "^3.3.3333"
+  },
+  "dependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/figlet": "^1.2.0",
+    "chalk": "^2.4.2",
+    "clear": "^0.1.0",
+    "commander": "^2.19.0",
+    "figlet": "^1.2.1",
+    "tslint": "^5.13.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-config-standard": "^8.0.1"
+  }
+}
