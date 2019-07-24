@@ -13,19 +13,29 @@ program
 	.description('A CLI for quickly building collate typescript apps');
 
 program
-	.command('create')
-	.alias('c')
-	.description('Creates a basic TypeScipt project.')
-	.action(async () => {
-		await printTitle();
-		await BoilerPlate.build(process.cwd());
+	.command('executable <name>')
+	.alias('x')
+	.description('Creates a TypeScipt executable project.')
+	.action(async (name : string) => {
+		await print("Collate\nTemplate");
+		await BoilerPlate.buildExecutable(process.cwd(), name);
 	});
 
-function printTitle() : Promise<void> {
+program
+	.command('library <name>')
+	.alias('l')
+	.description('Creates a TypeScipt library project.')
+	.action(async (name : string) => {
+		await print("Collate\nTemplate");
+		await BoilerPlate.buildLibrary(process.cwd(), name);
+	});
+	
+
+async function print(str : string) : Promise<void> {
 	return new Promise((resolve: Resolver<void>, reject: Rejector) : void => {
 		clear();
 		try {
-			figlet.text('Collate\nTemplate', {
+			figlet.text(str, {
 				horizontalLayout: "fitted"
 			}, (error : Error | null, text : string | undefined) : void => {
 				printFigletText(error, text, resolve);

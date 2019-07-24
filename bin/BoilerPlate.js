@@ -43,41 +43,94 @@ var child_process_1 = require("child_process");
 var BoilerPlate = /** @class */ (function () {
     function BoilerPlate() {
     }
-    BoilerPlate.build = function (workingDirectory) {
+    BoilerPlate.buildExecutable = function (workingDirectory, name) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, _c, _d, _e, error_1;
+            var projectPath, _a, _b, _c, _d, _e, error_1;
             return __generator(this, function (_f) {
                 switch (_f.label) {
                     case 0:
-                        _f.trys.push([0, 4, , 5]);
+                        _f.trys.push([0, 5, , 6]);
+                        return [4 /*yield*/, Promise.all([
+                                this.createDirectory(workingDirectory, name)
+                            ])];
+                    case 1:
+                        _f.sent();
+                        projectPath = Path.join(workingDirectory, name);
                         _b = (_a = Promise).all;
-                        _c = [this.createFile(workingDirectory, 'tsconfig.json', Files_1.TsConfig),
-                            this.createFile(workingDirectory, 'tslint.json', Files_1.TsLint),
-                            this.createFile(workingDirectory, '.gitignore', Files_1.GitIgnore),
-                            this.createDirectory(workingDirectory, 'src'),
-                            this.createDirectory(workingDirectory, 'dist'),
-                            this.createDirectory(workingDirectory, 'tests')];
+                        _c = [this.createFile(projectPath, 'tsconfig.json', Files_1.TsConfig("dist")),
+                            this.createFile(projectPath, 'tslint.json', Files_1.TsLint),
+                            this.createFile(projectPath, '.gitignore', Files_1.GitIgnore),
+                            this.createFile(projectPath, 'jest.config.js', Files_1.JestConfig),
+                            this.createDirectory(projectPath, 'src'),
+                            this.createDirectory(projectPath, 'dist'),
+                            this.createDirectory(projectPath, 'tests')];
                         _d = this.createFile;
-                        _e = [workingDirectory, 'package.json'];
-                        return [4 /*yield*/, Files_1.Package()];
-                    case 1: return [4 /*yield*/, _b.apply(_a, [_c.concat([
+                        _e = [projectPath, 'package.json'];
+                        return [4 /*yield*/, Files_1.ExecutablePackage(name)];
+                    case 2: return [4 /*yield*/, _b.apply(_a, [_c.concat([
                                 _d.apply(this, _e.concat([_f.sent()]))
                             ])])];
-                    case 2:
-                        _f.sent();
-                        return [4 /*yield*/, Promise.all([
-                                this.execute("npm install"),
-                                this.execute("git init")
-                            ])];
                     case 3:
                         _f.sent();
-                        this.log(chalk_1.default.green("Successfully created a basic typescript project!"));
-                        process.exit(1);
-                        return [3 /*break*/, 5];
+                        return [4 /*yield*/, Promise.all([
+                                this.execute("cd ./" + name + " && npm install"),
+                                this.execute("cd ./" + name + " && git init")
+                            ])];
                     case 4:
+                        _f.sent();
+                        this.log(chalk_1.default.green("Successfully created a typescript executable project!"));
+                        process.exit(1);
+                        return [3 /*break*/, 6];
+                    case 5:
                         error_1 = _f.sent();
                         throw error_1;
-                    case 5: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    BoilerPlate.buildLibrary = function (workingDirectory, name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var projectPath, _a, _b, _c, _d, _e, error_2;
+            return __generator(this, function (_f) {
+                switch (_f.label) {
+                    case 0:
+                        _f.trys.push([0, 5, , 6]);
+                        return [4 /*yield*/, Promise.all([
+                                this.createDirectory(workingDirectory, name)
+                            ])];
+                    case 1:
+                        _f.sent();
+                        projectPath = Path.join(workingDirectory, name);
+                        _b = (_a = Promise).all;
+                        _c = [this.createFile(projectPath, 'tsconfig.json', Files_1.TsConfig("lib")),
+                            this.createFile(projectPath, 'tslint.json', Files_1.TsLint),
+                            this.createFile(projectPath, '.gitignore', Files_1.GitIgnore),
+                            this.createFile(projectPath, 'jest.config.js', Files_1.JestConfig),
+                            this.createDirectory(projectPath, 'src'),
+                            this.createDirectory(projectPath, 'lib'),
+                            this.createDirectory(projectPath, 'tests')];
+                        _d = this.createFile;
+                        _e = [projectPath, 'package.json'];
+                        return [4 /*yield*/, Files_1.LibraryPackage(name)];
+                    case 2: return [4 /*yield*/, _b.apply(_a, [_c.concat([
+                                _d.apply(this, _e.concat([_f.sent()]))
+                            ])])];
+                    case 3:
+                        _f.sent();
+                        return [4 /*yield*/, Promise.all([
+                                this.execute("cd ./" + name + " && npm install"),
+                                this.execute("cd ./" + name + " && git init")
+                            ])];
+                    case 4:
+                        _f.sent();
+                        this.log(chalk_1.default.green("Successfully created a typescript library project!"));
+                        process.exit(1);
+                        return [3 /*break*/, 6];
+                    case 5:
+                        error_2 = _f.sent();
+                        throw error_2;
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -91,7 +144,7 @@ var BoilerPlate = /** @class */ (function () {
                 if (error) {
                     _this.makeDirectory(path, resolve, reject);
                 }
-                if (stats != null && stats.isDirectory()) {
+                if (stats && stats.isDirectory()) {
                     _this.log(chalk_1.default.yellow("Directory already exists: '" + path + "'"));
                 }
             });
@@ -116,7 +169,7 @@ var BoilerPlate = /** @class */ (function () {
                 if (error) {
                     _this.writeFile(path, data, resolve, reject);
                 }
-                if (stats != null && stats.isFile()) {
+                if (stats && stats.isFile()) {
                     _this.log(chalk_1.default.yellow("File already exists: '" + path + "'"));
                 }
             });
@@ -137,6 +190,7 @@ var BoilerPlate = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
+                        _this.log(chalk_1.default.green("executing command '" + command + "'"));
                         var process = child_process_1.exec(command);
                         process.on('exit', function () {
                             if (!process.killed) {
@@ -157,10 +211,10 @@ var BoilerPlate = /** @class */ (function () {
         });
     };
     BoilerPlate.logFile = function (path) {
-        this.log(chalk_1.default.green("Wrote file: '" + path + "'"));
+        this.log(chalk_1.default.green("Writing file: '" + path + "'"));
     };
     BoilerPlate.logDir = function (path) {
-        this.log(chalk_1.default.green("Wrote dir: '" + path + "'"));
+        this.log(chalk_1.default.green("Making dir: '" + path + "'"));
     };
     BoilerPlate.log = function (data) {
         process.stdout.write(data + '\n');

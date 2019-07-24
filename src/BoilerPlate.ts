@@ -1,29 +1,70 @@
 import * as fs from 'fs';
 import * as Path from 'path';
 import chalk from "chalk";
-import { TsLint, TsConfig, GitIgnore, Package } from './Files';
+import { 
+	TsLint, 
+	TsConfig, 
+	GitIgnore, 
+	ExecutablePackage, 
+	JestConfig,
+	LibraryPackage
+} from './Files';
 import { exec as execute, ChildProcess } from "child_process";
 
 type Resolver<T> = (value: T) => void;
 type Rejector = (error: Error) => void;
 
 export default class BoilerPlate {
-	public static async build(workingDirectory: string) : Promise<void> {
+	public static async buildExecutable(workingDirectory: string, name : string) : Promise<void> {
 		try {
 			await Promise.all([
-				this.createFile(workingDirectory, 'tsconfig.json', TsConfig),
-				this.createFile(workingDirectory, 'tslint.json', TsLint),
-				this.createFile(workingDirectory, '.gitignore', GitIgnore),
-				this.createDirectory(workingDirectory, 'src'),
-				this.createDirectory(workingDirectory, 'dist'),
-				this.createDirectory(workingDirectory, 'tests'),
-				this.createFile(workingDirectory, 'package.json', await Package()),
+				this.createDirectory(workingDirectory, name)
+			]);
+
+			const projectPath : string = Path.join(workingDirectory, name);
+			await Promise.all([
+				this.createFile(projectPath, 'tsconfig.json', TsConfig("dist")),
+				this.createFile(projectPath, 'tslint.json', TsLint),
+				this.createFile(projectPath, '.gitignore', GitIgnore),
+				this.createFile(projectPath, 'jest.config.js', JestConfig),
+				this.createDirectory(projectPath, 'src'),
+				this.createDirectory(projectPath, 'dist'),
+				this.createDirectory(projectPath, 'tests'),
+				this.createFile(projectPath, 'package.json', await ExecutablePackage(name)),
 			]);
 			await Promise.all([
-				this.execute("npm install"),
-				this.execute("git init")
+				this.execute(`cd ./${name} && npm install`),
+				this.execute(`cd ./${name} && git init`)
 			]);
-			this.log(chalk.green("Successfully created a basic typescript project!"));
+			this.log(chalk.green("Successfully created a typescript executable project!"));
+			process.exit(1);
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	public static async buildLibrary(workingDirectory: string, name : string) : Promise<void> {
+		try {
+			await Promise.all([
+				this.createDirectory(workingDirectory, name)
+			]);
+
+			const projectPath : string = Path.join(workingDirectory, name);
+			await Promise.all([
+				this.createFile(projectPath, 'tsconfig.json', TsConfig("lib")),
+				this.createFile(projectPath, 'tslint.json', TsLint),
+				this.createFile(projectPath, '.gitignore', GitIgnore),
+				this.createFile(projectPath, 'jest.config.js', JestConfig),
+				this.createDirectory(projectPath, 'src'),
+				this.createDirectory(projectPath, 'lib'),
+				this.createDirectory(projectPath, 'tests'),
+				this.createFile(projectPath, 'package.json', await LibraryPackage(name)),
+			]);
+			await Promise.all([
+				this.execute(`cd ./${name} && npm install`),
+				this.execute(`cd ./${name} && git init`)
+			]);
+			this.log(chalk.green("Successfully created a typescript library project!"));
 			process.exit(1);
 		} catch (error) {
 			throw error;
@@ -39,7 +80,7 @@ export default class BoilerPlate {
 				if (error) {
 					this.makeDirectory(path, resolve, reject);
 				}
-				if (stats != null && stats.isDirectory()) {
+				if (stats && stats.isDirectory()) {
 					this.log(chalk.yellow(`Directory already exists: '${path}'`));
 				}
 			});
@@ -64,7 +105,7 @@ export default class BoilerPlate {
 				if (error) {
 					this.writeFile(path, data, resolve, reject);
 				}
-				if (stats != null && stats.isFile()) {
+				if (stats && stats.isFile()) {
 					this.log(chalk.yellow(`File already exists: '${path}'`));
 				}
 			});

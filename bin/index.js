@@ -46,35 +46,56 @@ program
     .version('0.0.1')
     .description('A CLI for quickly building collate typescript apps');
 program
-    .command('create')
-    .alias('c')
-    .description('Creates a basic TypeScipt project.')
-    .action(function () { return __awaiter(_this, void 0, void 0, function () {
+    .command('executable <name>')
+    .alias('x')
+    .description('Creates a TypeScipt executable project.')
+    .action(function (name) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, printTitle()];
+            case 0: return [4 /*yield*/, print("Collate\nTemplate")];
             case 1:
                 _a.sent();
-                return [4 /*yield*/, BoilerPlate_1.default.build(process.cwd())];
+                return [4 /*yield*/, BoilerPlate_1.default.buildExecutable(process.cwd(), name)];
             case 2:
                 _a.sent();
                 return [2 /*return*/];
         }
     });
 }); });
-function printTitle() {
-    return new Promise(function (resolve, reject) {
-        clear();
-        try {
-            figlet.text('Collate\nTemplate', {
-                horizontalLayout: "fitted"
-            }, function (error, text) {
-                printFigletText(error, text, resolve);
-            });
+program
+    .command('library <name>')
+    .alias('l')
+    .description('Creates a TypeScipt library project.')
+    .action(function (name) { return __awaiter(_this, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, print("Collate\nTemplate")];
+            case 1:
+                _a.sent();
+                return [4 /*yield*/, BoilerPlate_1.default.buildLibrary(process.cwd(), name)];
+            case 2:
+                _a.sent();
+                return [2 /*return*/];
         }
-        catch (error) {
-            reject(error);
-        }
+    });
+}); });
+function print(str) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, new Promise(function (resolve, reject) {
+                    clear();
+                    try {
+                        figlet.text(str, {
+                            horizontalLayout: "fitted"
+                        }, function (error, text) {
+                            printFigletText(error, text, resolve);
+                        });
+                    }
+                    catch (error) {
+                        reject(error);
+                    }
+                })];
+        });
     });
 }
 function printFigletText(error, text, resolve) {
@@ -82,7 +103,7 @@ function printFigletText(error, text, resolve) {
         throw error;
     }
     if (text) {
-        process.stdout.write(chalk_1.default.bgRed(chalk_1.default.magentaBright(text)) + "\n");
+        process.stdout.write(chalk_1.default.magentaBright(text) + "\n");
         resolve();
     }
 }

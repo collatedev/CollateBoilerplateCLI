@@ -40,32 +40,44 @@ const TsLint : string = `{
     "rulesDirectory": []
 }`;
 
-const TsConfig : string = `{
-    "compilerOptions": {
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "pretty": true,
-        "sourceMap": true,
-        "target": "es6",
-        "outDir": "./dist",
-        "noImplicitAny": true,
-        "strictFunctionTypes": true,
-        "noImplicitThis": true,
-		"alwaysStrict": true,
-		"noImplicitReturns": true,
-		"allowSyntheticDefaultImports": true,
-		"noUnusedLocals": true,
-		"strictPropertyInitialization": true,
-		"strictNullChecks": true
-    },
-    "include": [
-        "src/**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
-    ]
-}`;
+function TsConfig(dir: string) : string {
+	return `{
+		"compilerOptions": {
+			"module": "commonjs",
+			"moduleResolution": "node",
+			"pretty": true,
+			"sourceMap": true,
+			"target": "es6",
+			"outDir": "./${dir}",
+			"noImplicitAny": true,
+			"strictFunctionTypes": true,
+			"noImplicitThis": true,
+			"alwaysStrict": true,
+			"noImplicitReturns": true,
+			"allowSyntheticDefaultImports": true,
+			"noUnusedLocals": true,
+			"strictPropertyInitialization": true,
+			"strictNullChecks": true
+		},
+		"include": [
+			"src/**/*"
+		],
+		"exclude": [
+			"node_modules",
+			"**/*.spec.ts"
+		]
+	}`;
+}
+
+const JestConfig : string = `module.exports = {
+	preset: 'ts-jest',
+	testEnvironment: 'node',
+	globals: {
+		'ts-jest': {
+			tsConfig: "tsconfig.json"
+		}
+	},
+};`;
 
 const GitIgnore : string = `# Logs
 logs
@@ -130,10 +142,7 @@ typings/
 .next
 `;
 
-async function Package() : Promise<string> {
-	process.stdout.write("Name of project:\n");
-	input.prompt();
-	const name : string = await getLine();
+async function ExecutablePackage(name : string) : Promise<string> {
 	process.stdout.write("Description of project:\n");
 	input.prompt();
 	const desc : string = await getLine();
@@ -145,7 +154,7 @@ async function Package() : Promise<string> {
 	"scripts": {
 		"start": "npm run lint && tsc -p . && node bin/index.js",
 		"build": "npm run lint && tsc -p .",
-		"test": "./node_modules/mocha -r ts-node/register tests/**/*.spec.ts",
+		"test": "jest",
 		"lint": "tslint src/**/*.ts && tslint tests/**/*.ts"
 	},
 	"repository": {
@@ -159,15 +168,58 @@ async function Package() : Promise<string> {
 	},
 	"homepage": "https://github.com/collatedev/${name}#readme",
 	"devDependencies": {
-		"@types/node": "^11.9.5",
-		"nodemon": "^1.18.10",
-		"ts-node": "^8.0.2",
-		"typescript": "^3.3.3333"
-	},
-	"dependencies": {
+		"@types/jest": "24.0.15",
+		"ts-jest": "24.0.2",
+		"jest": "24.8.0",
 		"tslint": "^5.13.0",
 		"tslint-config-prettier": "^1.18.0",
 		"tslint-config-standard": "^8.0.1"
+	},
+	"dependencies": {
+		"@types/node": "^11.9.5",
+		"ts-node": "^8.0.2",
+		"typescript": "^3.3.3333",
+		"nodemon": "^1.18.10"
+	}
+}`;
+} 
+
+async function LibraryPackage(name : string) : Promise<string> {
+	process.stdout.write("Description of project:\n");
+	input.prompt();
+	const desc : string = await getLine();
+	return `{
+	"name": "${name}",
+	"version": "1.0.0",
+	"description": "${desc}",
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "npm run lint && tsc -p .",
+		"test": "jest",
+		"lint": "tslint src/**/*.ts && tslint tests/**/*.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/collatedev/${name}.git"
+	},
+	"author": "Evan Coulson",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/collatedev/${name}/issues"
+	},
+	"homepage": "https://github.com/collatedev/${name}#readme",
+	"devDependencies": {
+		"@types/jest": "24.0.15",
+		"ts-jest": "24.0.2",
+		"jest": "24.8.0",
+		"tslint": "^5.13.0",
+		"tslint-config-prettier": "^1.18.0",
+		"tslint-config-standard": "^8.0.1"
+	},
+	"dependencies": {
+		"@types/node": "^11.9.5",
+		"ts-node": "^8.0.2",
+		"typescript": "^3.3.3333",
 	}
 }`;
 } 
@@ -181,5 +233,10 @@ async function getLine() : Promise<string> {
 }
 
 export {
-	TsLint, TsConfig, GitIgnore, Package
+	TsLint, 
+	TsConfig, 
+	GitIgnore, 
+	ExecutablePackage, 
+	LibraryPackage,
+	JestConfig
 };
