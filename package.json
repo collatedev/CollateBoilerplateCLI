@@ -1,6 +1,6 @@
 {
   "name": "collate-boilerplate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Collate boilerplate for all typescript modules",
   "main": "./bin/index.js",
   "bin": {
